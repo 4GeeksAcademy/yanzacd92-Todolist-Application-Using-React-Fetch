@@ -61,16 +61,23 @@ const Home = () => {
 	}
 	
 	function removeItem(index) {
+		const newTodoList = [
+			...todoList.slice(0, index),
+			...todoList.slice(index + 1, todoList.length)
+		];
 		const raw = "";
 		const requestOptions = { method: 'DELETE', body: raw }
 
 		fetch(apiURL + username, requestOptions)
 		.then(response => {
 			if(response.ok || response.status == "500 Internal Server Error") {
-				return setTodoList([
-					...todoList.slice(0, index),
-					...todoList.slice(index + 1, todoList.length)
-				  ]);
+				if(updateItem(newTodoList) != -1) {
+					return setTodoList(newTodoList)
+				}
+				return
+			} else {
+				// response failed
+				console.log(response.status + ": " + response.statusText)
 			}
 		})
 		.catch(error => console.log('error', error));
@@ -79,7 +86,58 @@ const Home = () => {
 	function checkTodo(index) {
 		let newTodoList = [...todoList]
 		newTodoList[index].done = !newTodoList[index].done
-		setTodoList(newTodoList)
+		if(updateItem(newTodoList) != -1) {
+			setTodoList(newTodoList)
+		}
+	}
+
+	function updateItem(todoList) {
+		console.log("UPDATE ITEM:  " + todoList)
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		const raw = JSON.stringify(todoList);
+		const requestOptions = { method: 'PUT', headers: myHeaders, body: raw };
+
+		fetch(apiURL + username, requestOptions)
+		.then(response => {
+			if(response.ok) {
+				return response
+			} else {
+				// response failed
+				console.log(response.status + ": " + response.statusText)
+				return -1
+			}
+		})
+		.catch(error => {
+			console.log('error', error)
+			return -1
+		});
+	}
+
+	function createFirstItem() {
+		if(getItems.length == 0) {
+			const myHeaders = new Headers();
+			myHeaders.append("Content-Type", "application/json");
+			const raw = JSON.stringify([]);
+			const requestOptions = { method: 'POST', headers: myHeaders, body: raw };
+			fetch(apiURL + username, requestOptions)
+			.then(response => {
+				if(response.ok) {
+					let currentItems = getItems()
+					setTodoList(currentItems)
+					setTask("")
+					
+				} else {
+					// response failed
+					console.log(response.status + ": " + response.statusText)
+				}				
+			})
+			.then(() => {
+			})
+			.catch(error => console.log('error', error));
+		} else {
+
+		}
 	}
 
 	return (
