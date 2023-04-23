@@ -17,46 +17,37 @@ const Home = () => {
 
 	function getItems() {
 		const requestOptions = { method: 'GET' };
-		  
-		  fetch(apiURL + username, requestOptions)
-			.then( response => {
-				if(response.ok) {
-					// response passed
-					return response.json()
-				} else if(response.status == "404"){
-					return []
-				} else {
-					// response failed
-					console.log(response.status + ": " + response.statusText)
-				}
-			})
-			.then(data => {
-				setTodoList(data)
-			})
-			.catch(error => console.log('error', error));
+		fetch(apiURL + username, requestOptions)
+		.then( response => {
+			if(response.ok) {
+				// response passed
+				return response.json()
+			
+			} else {
+				// response failed
+				return []
+			}
+		})
+		.then(data => {
+			setTodoList(data)
+		})
+		.catch(error => console.log('error', error));
 	}
 
 	function addItem(e) {
 		if(e.code == "Enter") {
-			const myHeaders = new Headers();
-			myHeaders.append("Content-Type", "application/json");
-			const raw = JSON.stringify([]);
-			const requestOptions = { method: 'POST', headers: myHeaders, body: raw };
-			fetch(apiURL + username, requestOptions)
-			.then(response => {
-				if(response.ok || response.status == "400") {
-					let currentItems = getItems()
-					setTodoList(currentItems)
-					setTask("")
-					
-				} else {
-					// response failed
-					console.log(response.status + ": " + response.statusText)
-				}				
-			})
-			.then(() => {
-			})
-			.catch(error => console.log('error', error));
+			if (todoList.length == 0) {
+				// if there are items into the ToDo List
+				let newTodoList = createFirstItem()
+				setTodoList(newTodoList)
+				setTask("")
+			} else {
+				// there are items into the ToDo List
+				let newTodoList = [...todoList, {label: task, done: false}]
+				updateItem(newTodoList)
+				setTodoList(newTodoList)
+				setTask("")
+			}
 		}
 	}
 	
@@ -115,29 +106,21 @@ const Home = () => {
 	}
 
 	function createFirstItem() {
-		if(getItems.length == 0) {
-			const myHeaders = new Headers();
-			myHeaders.append("Content-Type", "application/json");
-			const raw = JSON.stringify([]);
-			const requestOptions = { method: 'POST', headers: myHeaders, body: raw };
-			fetch(apiURL + username, requestOptions)
-			.then(response => {
-				if(response.ok) {
-					let currentItems = getItems()
-					setTodoList(currentItems)
-					setTask("")
-					
-				} else {
-					// response failed
-					console.log(response.status + ": " + response.statusText)
-				}				
-			})
-			.then(() => {
-			})
-			.catch(error => console.log('error', error));
-		} else {
-
-		}
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		const raw = JSON.stringify([]);
+		const requestOptions = { method: 'POST', headers: myHeaders, body: raw };
+		fetch(apiURL + username, requestOptions)
+		.then(response => {
+			if(response.ok) {
+				return response.json
+			} else {
+				// response failed
+				console.log(response.status + ": " + response.statusText)
+				return []
+			}				
+		})
+		.catch(error => console.log('error', error));
 	}
 
 	return (
