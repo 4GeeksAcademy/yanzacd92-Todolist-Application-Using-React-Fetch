@@ -1,6 +1,5 @@
 import React, {useState, useRef, useEffect} from "react";
 import { Title } from "./title.jsx";
-import { any } from "prop-types";
 
 
 //create your first component
@@ -13,7 +12,7 @@ const Home = () => {
 
 	useEffect(() => {
 		getItems()
-	}, [addItem(any)])
+	}, [])
 
 	function getItems() {
 		const requestOptions = { method: 'GET' };
@@ -29,7 +28,7 @@ const Home = () => {
 			}
 		})
 		.then(data => {
-			setTodoList(data)
+			return setTodoList(data)
 		})
 		.catch(error => console.log('error', error));
 	}
@@ -37,9 +36,9 @@ const Home = () => {
 	function addItem(e) {
 		if(e.code == "Enter") {
 			if (todoList.length == 0) {
-				// if there are items into the ToDo List
-				let newTodoList = createFirstItem()
-				setTodoList(newTodoList)
+				// there are not items into the ToDo List
+				createFirstItem()
+				setTodoList(getItems())
 				setTask("")
 			} else {
 				// there are items into the ToDo List
@@ -57,19 +56,25 @@ const Home = () => {
 			...todoList.slice(index + 1, todoList.length)
 		];
 		const raw = "";
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
 		const requestOptions = { method: 'DELETE', body: raw }
-
 		fetch(apiURL + username, requestOptions)
-		.then(response => {
+		.then(function (response) {
 			if(response.ok || response.status == "500 Internal Server Error") {
-				if(updateItem(newTodoList) != -1) {
-					return setTodoList(newTodoList)
-				}
-				return
+				console.log("CREATE FIRST ITEM")
+				createFirstItem()
 			} else {
 				// response failed
+				console.log("FAILED ITEM")
 				console.log(response.status + ": " + response.statusText)
+
 			}
+		})
+		.then(function () {
+			console.log("UPDATE ITEM")
+			updateItem(newTodoList)
+			return setTodoList(newTodoList)
 		})
 		.catch(error => console.log('error', error));
 	}
@@ -83,7 +88,7 @@ const Home = () => {
 	}
 
 	function updateItem(todoList) {
-		console.log("UPDATE ITEM:  " + todoList)
+		console.log("TODO LIST: " + JSON.stringify(todoList))
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 		const raw = JSON.stringify(todoList);
