@@ -36,7 +36,9 @@ const Home = () => {
 			if (todoList.length == 0) {
 				// there are not items into the ToDo List
 				await createFirstItem()
-				setTodoList(await getItems())
+				let newTodoList = [...todoList, {label: task, done: false}]
+				await updateItem(newTodoList)
+				setTodoList(newTodoList)
 				setTask("")
 			} else {
 				// there are items into the ToDo List
@@ -80,7 +82,6 @@ const Home = () => {
 	}
 
 	async function updateItem(todoList) {
-		console.log("TODO LIST: " + JSON.stringify(todoList))
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 		const raw = JSON.stringify(todoList);
