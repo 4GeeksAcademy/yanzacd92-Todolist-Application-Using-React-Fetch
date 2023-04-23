@@ -55,6 +55,31 @@ const Home = () => {
 			...todoList.slice(0, index),
 			...todoList.slice(index + 1, todoList.length)
 		];
+		const rawDelete = "";
+		const rawCreate = JSON.stringify([]);
+		const rawUpdate = JSON.stringify(newTodoList);
+		console.log("rawUpdate: " + rawUpdate)
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		const requestOptionsDelete = { method: 'DELETE', body: rawDelete }
+		const requestOptionsCreate = { method: 'POST', headers: myHeaders, body: rawCreate };
+		const requestOptionsUpdate = { method: 'PUT', headers: myHeaders, body: rawUpdate };
+		Promise.all([
+			fetch(apiURL + username, requestOptionsDelete),
+			fetch(apiURL + username, requestOptionsCreate),
+			fetch(apiURL + username, requestOptionsUpdate)
+		  ]).then(([deleteResponse, createResponse, updateResponse]) => {
+			console.log("deleteResponse: " + deleteResponse.status)
+			console.log("createResponse: " + createResponse.status)
+			console.log("updateResponse: " + updateResponse.status)
+			  return setTodoList(newTodoList)
+		  }).catch((err) => {
+			  console.log(err);
+		  });
+		/*const newTodoList = [
+			...todoList.slice(0, index),
+			...todoList.slice(index + 1, todoList.length)
+		];
 		const raw = "";
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -76,7 +101,7 @@ const Home = () => {
 			updateItem(newTodoList)
 			return setTodoList(newTodoList)
 		})
-		.catch(error => console.log('error', error));
+		.catch(error => console.log('error', error));*/
 	}
 
 	function checkTodo(index) {
