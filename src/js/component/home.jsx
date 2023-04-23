@@ -60,10 +60,12 @@ const Home = () => {
 		myHeaders.append("Content-Type", "application/json");
 		const requestOptions = { method: 'DELETE', body: raw }
 		let response = await fetch(apiURL + username, requestOptions)
-		if(response.ok || response.status == "500 Internal Server Error") {
+		if(response.ok) {
 			await response.json()
-			await createFirstItem()
-			await updateItem(newTodoList)
+			if(todoList.length > 1) {
+				await createFirstItem()
+				await updateItem(newTodoList)
+			}
 			return setTodoList(newTodoList)
 		} else {
 			// response failed
