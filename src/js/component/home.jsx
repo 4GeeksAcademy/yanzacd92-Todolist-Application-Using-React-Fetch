@@ -14,69 +14,42 @@ const Home = () => {
 		getItems()
 	}, [])
 
-	function getItems() {
+	async function getItems() {
 		const requestOptions = { method: 'GET' };
-		fetch(apiURL + username, requestOptions)
-		.then( response => {
-			if(response.ok) {
-				// response passed
-				return response.json()
-			
-			} else {
-				// response failed
-				return []
-			}
-		})
-		.then(data => {
-			return setTodoList(data)
-		})
-		.catch(error => console.log('error', error));
+		let response = await fetch(apiURL + username, requestOptions)
+		if(response.ok) {
+			// response passed
+			let data = await response.json()
+			setTodoList(data)
+			return data
+		
+		} else {
+			// response failed
+			await response.json()
+			setTodoList([])
+			return []
+		}
 	}
 
-	function addItem(e) {
+	async function addItem(e) {
 		if(e.code == "Enter") {
 			if (todoList.length == 0) {
 				// there are not items into the ToDo List
-				createFirstItem()
-				setTodoList(getItems())
+				await createFirstItem()
+				setTodoList(await getItems())
 				setTask("")
 			} else {
 				// there are items into the ToDo List
 				let newTodoList = [...todoList, {label: task, done: false}]
-				updateItem(newTodoList)
+				await updateItem(newTodoList)
 				setTodoList(newTodoList)
 				setTask("")
 			}
 		}
 	}
 	
-	function removeItem(index) {
+	async function removeItem(index) {
 		const newTodoList = [
-			...todoList.slice(0, index),
-			...todoList.slice(index + 1, todoList.length)
-		];
-		const rawDelete = "";
-		const rawCreate = JSON.stringify([]);
-		const rawUpdate = JSON.stringify(newTodoList);
-		console.log("rawUpdate: " + rawUpdate)
-		const myHeaders = new Headers();
-		myHeaders.append("Content-Type", "application/json");
-		const requestOptionsDelete = { method: 'DELETE', body: rawDelete }
-		const requestOptionsCreate = { method: 'POST', headers: myHeaders, body: rawCreate };
-		const requestOptionsUpdate = { method: 'PUT', headers: myHeaders, body: rawUpdate };
-		Promise.all([
-			fetch(apiURL + username, requestOptionsDelete),
-			fetch(apiURL + username, requestOptionsCreate),
-			fetch(apiURL + username, requestOptionsUpdate)
-		  ]).then(([deleteResponse, createResponse, updateResponse]) => {
-			console.log("deleteResponse: " + deleteResponse.status)
-			console.log("createResponse: " + createResponse.status)
-			console.log("updateResponse: " + updateResponse.status)
-			  return setTodoList(newTodoList)
-		  }).catch((err) => {
-			  console.log(err);
-		  });
-		/*const newTodoList = [
 			...todoList.slice(0, index),
 			...todoList.slice(index + 1, todoList.length)
 		];
@@ -84,73 +57,62 @@ const Home = () => {
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 		const requestOptions = { method: 'DELETE', body: raw }
-		fetch(apiURL + username, requestOptions)
-		.then(function (response) {
-			if(response.ok || response.status == "500 Internal Server Error") {
-				console.log("CREATE FIRST ITEM")
-				createFirstItem()
-			} else {
-				// response failed
-				console.log("FAILED ITEM")
-				console.log(response.status + ": " + response.statusText)
-
-			}
-		})
-		.then(function () {
-			console.log("UPDATE ITEM")
-			updateItem(newTodoList)
+		let response = await fetch(apiURL + username, requestOptions)
+		if(response.ok || response.status == "500 Internal Server Error") {
+			await response.json()
+			await createFirstItem()
+			await updateItem(newTodoList)
 			return setTodoList(newTodoList)
-		})
-		.catch(error => console.log('error', error));*/
+		} else {
+			// response failed
+			await response.json()
+			console.log(response.status + ": " + response.statusText)
+
+		}
 	}
 
-	function checkTodo(index) {
+	async function checkTodo(index) {
 		let newTodoList = [...todoList]
 		newTodoList[index].done = !newTodoList[index].done
-		if(updateItem(newTodoList) != -1) {
+		if(await updateItem(newTodoList) != -1) {
 			setTodoList(newTodoList)
 		}
 	}
 
-	function updateItem(todoList) {
+	async function updateItem(todoList) {
 		console.log("TODO LIST: " + JSON.stringify(todoList))
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 		const raw = JSON.stringify(todoList);
 		const requestOptions = { method: 'PUT', headers: myHeaders, body: raw };
 
-		fetch(apiURL + username, requestOptions)
-		.then(response => {
-			if(response.ok) {
-				return response
-			} else {
-				// response failed
-				console.log(response.status + ": " + response.statusText)
-				return -1
-			}
-		})
-		.catch(error => {
-			console.log('error', error)
+		let response = await fetch(apiURL + username, requestOptions)
+		if(response.ok) {
+			await response.json()
+			return response
+		} else {
+			// response failed
+			await response.json()
+			console.log(response.status + ": " + response.statusText)
 			return -1
-		});
+		}
 	}
 
-	function createFirstItem() {
+	async function createFirstItem() {
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 		const raw = JSON.stringify([]);
 		const requestOptions = { method: 'POST', headers: myHeaders, body: raw };
-		fetch(apiURL + username, requestOptions)
-		.then(response => {
-			if(response.ok) {
-				return response.json
-			} else {
-				// response failed
-				console.log(response.status + ": " + response.statusText)
-				return []
-			}				
-		})
-		.catch(error => console.log('error', error));
+		let response = await fetch(apiURL + username, requestOptions)
+		if(response.ok) {
+			await response.json()
+			return []
+		} else {
+			// response failed
+			await response.json()
+			console.log(response.status + ": " + response.statusText)
+			return []
+		}				
 	}
 
 	return (
